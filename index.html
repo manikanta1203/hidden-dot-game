@@ -3,34 +3,39 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hidden Dot — Daily Useless Game</title>
+<title>The Useless Web — Hidden Dot + Mini Games</title>
 <style>
   :root{
-    --bg1:#0f172a; --bg2:#0b1220; --accent:#ffd700;
-    --card:#0b1220; --muted:#9aa4b2;
+    --bg1:#071033; --bg2:#071122; --accent:#ffd700; --muted:#9aa4b2;
+    --card:rgba(255,255,255,0.04);
   }
   *{box-sizing:border-box}
   body{
-    margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
+    margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
     background:linear-gradient(160deg,var(--bg1),var(--bg2));
-    color:#e6eef6; display:flex; align-items:center; justify-content:center;
-    min-height:100vh; padding:24px;
+    color:#e6eef6;display:flex;align-items:center;justify-content:center;
+    min-height:100vh;padding:28px;
   }
-  .wrap{width:100%;max-width:820px}
-  header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .wrap{width:100%;max-width:980px}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
   h1{margin:0;font-size:20px}
-  .card{background:rgba(255,255,255,0.03); padding:18px;border-radius:12px; box-shadow:0 6px 20px rgba(2,6,23,0.6)}
-  #play-area{width:100%;height:420px;border-radius:10px;overflow:hidden;position:relative;
+  .top{display:flex;gap:12px;align-items:center}
+  .card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 6px 24px rgba(2,6,23,0.6)}
+  .grid{display:grid;grid-template-columns:200px 1fr;gap:16px}
+  nav{display:flex;flex-direction:column;gap:8px}
+  .nav-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px 12px;border-radius:10px;color:var(--muted);cursor:pointer;text-align:left}
+  .nav-btn.active{background:linear-gradient(180deg,#ffd86b,#ffb800);color:#111;border-color:transparent;font-weight:800}
+  main{min-height:420px;border-radius:12px;padding:16px;position:relative}
+  .play-area{width:100%;height:420px;border-radius:10px;overflow:hidden;position:relative;
     background:
-      radial-gradient(1200px 400px at 10% 10%, rgba(255,255,255,0.02), transparent 8%),
+      radial-gradient(1000px 320px at 10% 10%, rgba(255,255,255,0.02), transparent 8%),
       linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
     border:1px solid rgba(255,255,255,0.04);
   }
   .hint{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;background:rgba(0,0,0,0.35);
     padding:8px 12px;border-radius:999px;font-size:13px;color:var(--muted)}
   .controls{display:flex;gap:10px;align-items:center;margin-top:12px}
-  button{background:linear-gradient(180deg,#ffd86b,#ffb800);border:0;color:#111;padding:10px 14px;
-    border-radius:10px;font-weight:700;cursor:pointer}
+  button{background:linear-gradient(180deg,#ffd86b,#ffb800);border:0;color:#111;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
   button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:600}
   .status{margin-left:auto;text-align:right;color:var(--muted);font-size:13px}
   .dot{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px rgba(255,215,0,0.8)}
@@ -41,40 +46,124 @@
   .msg-win{font-size:22px;font-weight:800;color:#111;padding:12px 20px;border-radius:999px;background:linear-gradient(180deg,#ffd86b,#ffb800)}
   .msg-try{font-size:16px;color:var(--muted)}
   .confetti-piece{position:absolute; width:8px;height:12px;border-radius:2px;opacity:0;transform:translateY(0) rotate(0); will-change:transform,opacity}
-  footer{margin-top:12px;color:var(--muted);font-size:13px;text-align:center}
-  @media (max-width:640px){ #play-area{height:360px} h1{font-size:18px} }
+  footer{margin-top:14px;color:var(--muted);font-size:13px;text-align:center}
+  /* memory game */
+  .row{display:flex;gap:10px;justify-content:center}
+  .card-tile{width:72px;height:72px;border-radius:12px;background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;border:1px solid rgba(255,255,255,0.03)}
+  .tile-flip{background:#fff;color:#111}
+  /* nonsense */
+  .choices{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .choice-btn{padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);cursor:pointer;text-align:left}
+  @media (max-width:820px){ .grid{grid-template-columns:1fr} main{min-height:360px} .play-area{height:360px} }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div class="card" style="padding:10px 12px;border-radius:999px">🔎</div>
+  <header class="top">
+    <div class="card" style="padding:10px 12px;border-radius:999px">🔗</div>
     <div>
-      <h1>Hidden Dot — pointless daily micro-challenge</h1>
-      <div style="color:var(--muted);font-size:13px">Click as close as you can to the hidden dot. It's silly. That's the point.</div>
+      <h1>The Useless Web — tiny hub</h1>
+      <div style="color:var(--muted);font-size:13px">Play a tiny pointless game, open a random silly site, and waste 30 seconds beautifully.</div>
     </div>
   </header>
 
-  <div class="card">
-    <div id="play-area" aria-label="play area (click to guess)">
-      <!-- dynamic content -->
-      <div class="hint" id="hint">Clicks: 0 · Closest: —</div>
-    </div>
+  <div class="card grid">
+    <nav class="card" aria-label="games list">
+      <button class="nav-btn active" data-game="hidden">Hidden Dot</button>
+      <button class="nav-btn" data-game="memory">1-Second Memory</button>
+      <button class="nav-btn" data-game="nonsense">Nonsense Word</button>
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:8px 0">
+      <div style="font-size:13px;color:var(--muted);padding:6px 0">Useless Web</div>
+      <button class="nav-btn" id="openRandom">Open Random Useless Site</button>
+      <button class="nav-btn" id="openList">Show Sites List</button>
+      <div style="margin-top:8px;color:var(--muted);font-size:12px">Tip: Press 1/2/3 to switch games. N = new hidden dot.</div>
+    </nav>
 
-    <div class="controls">
-      <button id="newBtn">New Game</button>
-      <button class="secondary" id="revealBtn">Reveal dot</button>
-      <div class="status" id="status">Ready</div>
-    </div>
+    <main class="card">
+      <div id="gameContainer">
+        <!-- Hidden Dot (default) -->
+        <div id="hidden" class="game-panel">
+          <div class="play-area" id="hidden-area" aria-label="hidden dot play area">
+            <div class="hint" id="hidden-hint">Clicks: 0 · Closest: —</div>
+          </div>
+          <div class="controls" style="margin-top:12px">
+            <button id="newBtn">New Game</button>
+            <button class="secondary" id="revealBtn">Reveal dot</button>
+            <div class="status" id="status">Ready</div>
+          </div>
+        </div>
+
+        <!-- Memory game -->
+        <div id="memory" class="game-panel" style="display:none">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="font-size:15px;color:var(--muted)">Watch the 3 emojis for 1 second, then pick the one that was in the middle.</div>
+            <div style="height:18px"></div>
+            <div id="memory-area" style="display:flex;align-items:center;justify-content:center">
+              <div id="mem-row" class="row"></div>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:center;margin-top:6px">
+              <button id="memStart" class="">Start</button>
+              <button id="memReveal" class="secondary">Show answer</button>
+              <div class="status" id="memStatus" style="margin-left:auto">Ready</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nonsense game -->
+        <div id="nonsense" class="game-panel" style="display:none">
+          <div style="font-size:15px;color:var(--muted)">Pick the best silly definition for the made-up word.</div>
+          <div id="nonsense-area" style="margin-top:12px">
+            <div id="made-word" style="font-size:28px;font-weight:800"></div>
+            <div class="choices" id="nonsense-choices"></div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button id="nonsenseNew">New word</button>
+              <button class="secondary" id="nonsenseReveal">Reveal answer</button>
+              <div class="status" id="nonsenseStatus" style="margin-left:auto">Ready</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- modal/popover for site list -->
+      <div id="sitesListModal" style="display:none;position:absolute;inset:12px;border-radius:10px;background:rgba(3,7,20,0.9);padding:16px;overflow:auto">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <strong>Useless Sites</strong>
+          <button id="closeSites" class="secondary" style="margin-left:auto">Close</button>
+        </div>
+        <div id="sitesList" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+
+    </main>
   </div>
 
-  <footer>Tip: Being useless is an art. Refresh to start fresh.</footer>
+  <footer class="card" style="margin-top:12px">Made for wasting time. Deploy by replacing repo root <code>index.html</code>.</footer>
 </div>
 
 <script>
+/* --------------------------
+   NAV & UI SWITCHING
+   -------------------------- */
+const navBtns = document.querySelectorAll('.nav-btn[data-game]');
+const panels = document.querySelectorAll('.game-panel');
+
+function setActive(game){
+  navBtns.forEach(b => b.classList.toggle('active', b.dataset.game === game));
+  panels.forEach(p => p.style.display = (p.id === game ? '' : 'none'));
+}
+navBtns.forEach(b => b.addEventListener('click', ()=> setActive(b.dataset.game)));
+window.addEventListener('keydown', (e)=>{
+  if (e.key === '1') setActive('hidden');
+  if (e.key === '2') setActive('memory');
+  if (e.key === '3') setActive('nonsense');
+});
+
+/* --------------------------
+   HIDDEN DOT (original)
+   -------------------------- */
 (() => {
-  const area = document.getElementById('play-area');
-  const hint = document.getElementById('hint');
+  const area = document.getElementById('hidden-area');
+  const hint = document.getElementById('hidden-hint');
   const status = document.getElementById('status');
   const newBtn = document.getElementById('newBtn');
   const revealBtn = document.getElementById('revealBtn');
@@ -83,10 +172,9 @@
 
   function placeDotRandom(){
     const rect = area.getBoundingClientRect();
-    // keep dot inside with margin
     const pad = 30;
-    dot.x = Math.floor(Math.random()*(rect.width - pad*2) + pad);
-    dot.y = Math.floor(Math.random()*(rect.height - pad*2) + pad);
+    dot.x = Math.floor(Math.random()*(Math.max(100,rect.width) - pad*2) + pad);
+    dot.y = Math.floor(Math.random()*(Math.max(100,rect.height) - pad*2) + pad);
     clicks = 0; bestDist = null; revealed=false;
     hint.textContent = 'Clicks: 0 · Closest: —';
     status.textContent = 'Find the hidden dot!';
@@ -94,7 +182,6 @@
   }
 
   function clearVisuals(){
-    // remove existing dot/pulse/messages/confetti
     Array.from(area.querySelectorAll('.dot, .pulse, .message, .confetti-piece')).forEach(n => n.remove());
   }
 
@@ -102,9 +189,8 @@
     return Math.hypot(cx - dot.x, cy - dot.y);
   }
 
-  function showWin(x,y,dist){
+  function showWin(cx,y,dist){
     clearVisuals();
-    // reveal a decorative dot and pulse
     const d = document.createElement('div'); d.className='dot';
     d.style.left = (dot.x - 5) + 'px'; d.style.top = (dot.y - 5) + 'px';
     area.appendChild(d);
@@ -112,14 +198,11 @@
     pulse.style.left = dot.x + 'px'; pulse.style.top = dot.y + 'px';
     area.appendChild(pulse);
 
-    // message center
     const msg = document.createElement('div'); msg.className='message';
     const win = document.createElement('div'); win.className='msg-win'; win.textContent = 'You found it! 🎉';
     const info = document.createElement('div'); info.className='msg-try'; info.textContent = 'Distance: ' + Math.round(dist) + 'px';
     msg.appendChild(win); msg.appendChild(info);
     area.appendChild(msg);
-
-    // confetti
     launchConfetti();
     status.textContent = 'Victory';
     revealed = true;
@@ -130,25 +213,21 @@
     if (bestDist === null || dist < bestDist) bestDist = dist;
     hint.textContent = 'Clicks: ' + clicks + ' · Closest: ' + Math.round(bestDist) + 'px';
     status.textContent = dist < 50 ? 'So close!' : 'Cold...';
-    // show small marker where user clicked
     const m = document.createElement('div'); m.className='dot';
     m.style.width='8px'; m.style.height='8px';
     m.style.left = (cx - 4) + 'px'; m.style.top = (cy - 4) + 'px';
     m.style.background = dist < 80 ? '#7ef9a1' : '#ff7b7b';
     m.style.boxShadow = '0 0 8px rgba(0,0,0,0.3)';
     area.appendChild(m);
-    // auto-fade click markers
     setTimeout(()=> { m.style.transition='opacity 900ms'; m.style.opacity='0'; setTimeout(()=>m.remove(),1000); }, 800);
   }
 
   function launchConfetti(){
-    // small confetti burst
     for(let i=0;i<28;i++){
       const p = document.createElement('div'); p.className='confetti-piece';
       p.style.left = (dot.x - 8) + 'px'; p.style.top = (dot.y - 8) + 'px';
       p.style.background = ['#ff595e','#ffca3a','#8ac926','#1982c4','#6a4c93'][Math.floor(Math.random()*5)];
       area.appendChild(p);
-      // animate
       const dx = (Math.random()-0.5)*400;
       const dy = - (100 + Math.random()*400);
       const rot = Math.random()*720;
@@ -160,7 +239,6 @@
     }
   }
 
-  // click handler
   area.addEventListener('click', (ev) => {
     const rect = area.getBoundingClientRect();
     const cx = ev.clientX - rect.left;
@@ -187,14 +265,193 @@
   });
 
   newBtn.addEventListener('click', placeDotRandom);
-
-  // initialize on load and on resize (re-place so coordinates fit)
   window.addEventListener('load', placeDotRandom);
   window.addEventListener('resize', () => { placeDotRandom(); });
-
-  // small accessibility / keyboard shortcut: press N for new
   window.addEventListener('keydown', (e)=>{ if (e.key.toLowerCase()==='n') placeDotRandom(); });
 })();
+
+/* --------------------------
+   1-SECOND MEMORY GAME
+   -------------------------- */
+(() => {
+  const emojis = ['😀','🎈','🍕','🚀','🌵','🦄','💡','🐙','🍩','🎲'];
+  const memRow = document.getElementById('mem-row');
+  const memStart = document.getElementById('memStart');
+  const memReveal = document.getElementById('memReveal');
+  const memStatus = document.getElementById('memStatus');
+
+  let sequence = [], answerIndex = 1, clickable = false;
+
+  function renderTiles(show=false){
+    memRow.innerHTML = '';
+    for(let i=0;i<3;i++){
+      const t = document.createElement('div');
+      t.className = 'card-tile' + (show ? ' tile-flip' : '');
+      t.dataset.index = i;
+      t.textContent = show ? sequence[i] : '';
+      t.addEventListener('click', onTileClick);
+      memRow.appendChild(t);
+    }
+  }
+
+  function onTileClick(e){
+    if (!clickable) return;
+    const idx = Number(e.currentTarget.dataset.index);
+    if (idx === answerIndex){
+      memStatus.textContent = 'Correct! 🎉';
+      clickable = false;
+      // small celebration: flash
+      Array.from(memRow.children)[idx].style.transform = 'scale(1.08)';
+      setTimeout(()=> Array.from(memRow.children)[idx].style.transform = '', 400);
+    } else {
+      memStatus.textContent = 'Nope, try again — start over.';
+      clickable = false;
+    }
+  }
+
+  function startRound(){
+    memStatus.textContent = 'Watch closely...';
+    sequence = [];
+    for(let i=0;i<3;i++) sequence.push(emojis[Math.floor(Math.random()*emojis.length)]);
+    // show for 1 second then hide
+    renderTiles(true);
+    setTimeout(()=> {
+      renderTiles(false);
+      memStatus.textContent = 'Now pick the middle one.';
+      clickable = true;
+    }, 1000);
+  }
+
+  memStart.addEventListener('click', startRound);
+  memReveal.addEventListener('click', ()=> { renderTiles(true); memStatus.textContent = 'Answer revealed.'; clickable=false; });
+
+  // populate initial row
+  renderTiles(false);
+})();
+
+/* --------------------------
+   NONSENSE WORD GAME
+   -------------------------- */
+(() => {
+  const words = ['flarn', 'glimpo', 'vibbix', 'zooble','snorple','trundish','plimlet','wabble'];
+  const defs = [
+    'A handheld cloud for storing tiny feelings.',
+    'The act of smiling through a sneeze.',
+    'A tiny hat you wear on your thumb.',
+    'A machine that politely declines invitations.',
+    'A dance move performed only in elevators.',
+    'The sound your socks make at midnight.',
+    'A device to measure how bored you are.',
+    'A rare vegetable grown in shower curtains.'
+  ];
+  const madeWord = document.getElementById('made-word');
+  const choices = document.getElementById('nonsense-choices');
+  const newBtn = document.getElementById('nonsenseNew');
+  const revealBtn = document.getElementById('nonsenseReveal');
+  const status = document.getElementById('nonsenseStatus');
+
+  let current = {word:'', correct:0};
+
+  function newWord(){
+    // pick random word + three defs (one correct is its paired definition)
+    const idx = Math.floor(Math.random()*words.length);
+    const word = words[idx];
+    const correctDef = defs[idx];
+    // pick two other random defs
+    const other = defs.slice();
+    other.splice(idx,1);
+    shuffleArray(other);
+    const choicesArr = [correctDef, other[0], other[1]];
+    shuffleArray(choicesArr);
+    current.word = word;
+    current.correct = choicesArr.indexOf(correctDef);
+    madeWord.textContent = word;
+    choices.innerHTML = '';
+    choicesArr.forEach((d,i) => {
+      const b = document.createElement('button');
+      b.className = 'choice-btn';
+      b.textContent = d;
+      b.addEventListener('click', ()=> {
+        if (i === current.correct) {
+          status.textContent = 'Correct — that sounded right. 🎉';
+          b.style.borderColor = '#7ef9a1';
+        } else {
+          status.textContent = 'Wrong — but feels plausible.';
+          b.style.borderColor = '#ff8b8b';
+        }
+      });
+      choices.appendChild(b);
+    });
+    status.textContent = 'Pick one definition.';
+  }
+
+  function revealAnswer(){
+    Array.from(choices.children).forEach((c, i) => {
+      c.style.background = i === current.correct ? '#7ef9a1' : 'transparent';
+      c.style.color = i === current.correct ? '#071033' : '';
+    });
+    status.textContent = 'Answer revealed.';
+  }
+
+  function shuffleArray(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
+
+  newBtn.addEventListener('click', newWord);
+  revealBtn.addEventListener('click', revealAnswer);
+  // init
+  newWord();
+})();
+
+/* --------------------------
+   USELESS SITES (curated)
+   -------------------------- */
+(() => {
+  // curated list of fun/useless websites (open in new tab)
+  const sites = [
+    {name:'The Useless Web', url:'https://theuselessweb.com/'},
+    {name:'Pointer Pointer', url:'https://pointerpointer.com/'},
+    {name:'Bouncing DVD Logo', url:'https://bouncingdvdlogo.com/'},
+    {name:'Staggering Beauty', url:'http://www.staggeringbeauty.com/'},
+    {name:'Endless Horse', url:'http://endless.horse/'},
+    {name:'Heeeeeeeey', url:'http://heeeeeeeey.com/'},
+    {name:'Zoom Quilt', url:'https://zoomquilt.org/'},
+    {name:'Smashthewalls (a silly noise site)', url:'https://smashthewalls.com/'},
+    {name:'Koalas to the Max', url:'https://www.koalastothemax.com/'},
+    {name:'Hacker Typer', url:'https://hackertyper.net/'}
+  ];
+
+  const openRandom = document.getElementById('openRandom');
+  const openList = document.getElementById('openList');
+  const modal = document.getElementById('sitesListModal');
+  const sitesList = document.getElementById('sitesList');
+  const closeSites = document.getElementById('closeSites');
+
+  function openSite(s){
+    // opens in a new tab
+    window.open(s.url, '_blank', 'noopener');
+  }
+
+  openRandom.addEventListener('click', ()=>{
+    const s = sites[Math.floor(Math.random()*sites.length)];
+    openSite(s);
+  });
+
+  openList.addEventListener('click', ()=>{
+    sitesList.innerHTML = '';
+    sites.forEach(s => {
+      const el = document.createElement('div');
+      el.style.display='flex'; el.style.justifyContent='space-between'; el.style.alignItems='center';
+      el.style.gap='8px';
+      const t = document.createElement('div'); t.textContent = s.name; t.style.color='var(--muted)';
+      const a = document.createElement('button'); a.className='nav-btn'; a.textContent = 'Open';
+      a.style.width='86px'; a.addEventListener('click', ()=> openSite(s));
+      el.appendChild(t); el.appendChild(a); sitesList.appendChild(el);
+    });
+    modal.style.display = 'block';
+  });
+
+  closeSites.addEventListener('click', ()=> modal.style.display='none');
+})();
+
 </script>
 </body>
 </html>
